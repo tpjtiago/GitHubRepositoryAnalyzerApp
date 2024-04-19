@@ -1,14 +1,14 @@
 ﻿using System.Net.Http.Headers;
 using System.Text.Json;
 
-namespace GitHubRepositoryAnalyzer
+namespace GitHubRepositoryAnalyzerApp
 {
     class Program
     {
         static async Task Main(string[] args)
         {
-            string repositoryOwner = "nome_do_dono";
-            string repositoryName = "nome_do_repositorio";
+            string repositoryOwner = "tpjtiago";
+            string repositoryName = "GitHubRepositoryAnalyzerApp";
             string accessToken = "seu_token_de_acesso_pessoal";
 
             string apiUrl = $"https://api.github.com/repos/{repositoryOwner}/{repositoryName}/commits";
