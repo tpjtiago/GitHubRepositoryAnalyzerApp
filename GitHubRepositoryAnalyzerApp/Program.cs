@@ -24,7 +24,6 @@ namespace GitHubRepositoryAnalyzerApp
                 {
                     string responseBody = await response.Content.ReadAsStringAsync();
 
-                    // Deserialize o JSON da resposta
                     var commits = JsonSerializer.Deserialize<dynamic[]>(responseBody);
 
                     int totalCommits = commits.Length;
