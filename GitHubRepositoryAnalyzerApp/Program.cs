@@ -9,7 +9,7 @@ namespace GitHubRepositoryAnalyzerApp
         {
             string repositoryOwner = "tpjtiago";
             string repositoryName = "GitHubRepositoryAnalyzerApp";
-            string accessToken = "seu_token_de_acesso_pessoal";
+            string accessToken = "";
 
             string apiUrl = $"https://api.github.com/repos/{repositoryOwner}/{repositoryName}/commits";
 
@@ -24,25 +24,30 @@ namespace GitHubRepositoryAnalyzerApp
                 {
                     string responseBody = await response.Content.ReadAsStringAsync();
 
-                    var commits = JsonSerializer.Deserialize<dynamic[]>(responseBody);
-
-                    int totalCommits = commits.Length;
-                    int copilotCommits = 0;
-
-                    foreach (var commit in commits)
+                    // Deserialize o JSON da resposta
+                    using (JsonDocument doc = JsonDocument.Parse(responseBody))
                     {
-                        string commitMessage = commit.commit.message;
-                        if (commitMessage.Contains("copilot", StringComparison.OrdinalIgnoreCase))
+                        var commits = doc.RootElement.EnumerateArray();
+
+                        int totalCommits = 0;
+                        int copilotCommits = 0;
+
+                        foreach (var commit in commits)
                         {
-                            copilotCommits++;
+                            totalCommits++;
+                            string commitMessage = commit.GetProperty("commit").GetProperty("message").GetString();
+                            if (commitMessage.Contains("IA-(Projeto-X)", StringComparison.OrdinalIgnoreCase))
+                            {
+                                copilotCommits++;
+                            }
                         }
+
+                        double copilotPercentage = totalCommits > 0 ? (double)copilotCommits / totalCommits * 100 : 0;
+
+                        Console.WriteLine($"Total de commits: {totalCommits}");
+                        Console.WriteLine($"Commits com a palavra 'IA-(Projeto-X': {copilotCommits}");
+                        Console.WriteLine($"Porcentagem de uso de IA: {copilotPercentage}%");
                     }
-
-                    double copilotPercentage = totalCommits > 0 ? (double)copilotCommits / totalCommits * 100 : 0;
-
-                    Console.WriteLine($"Total de commits: {totalCommits}");
-                    Console.WriteLine($"Commits com a palavra 'copilot': {copilotCommits}");
-                    Console.WriteLine($"Porcentagem de uso de IA: {copilotPercentage}%");
                 }
                 else
                 {
