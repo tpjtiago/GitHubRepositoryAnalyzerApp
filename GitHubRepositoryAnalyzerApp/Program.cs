@@ -24,7 +24,6 @@ namespace GitHubRepositoryAnalyzerApp
                 {
                     string responseBody = await response.Content.ReadAsStringAsync();
 
-                    // Deserialize o JSON da resposta
                     using (JsonDocument doc = JsonDocument.Parse(responseBody))
                     {
                         var commits = doc.RootElement.EnumerateArray();
