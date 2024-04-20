@@ -26,7 +26,7 @@ namespace GitHubRepositoryAnalyzerApp
                 {
                     string responseBody = await response.Content.ReadAsStringAsync();
 
-                    // Create PDF with commit data
+                    // Create PDF with commit data and pie chart
                     CreatePdfWithCommitData(responseBody);
                 }
                 else
@@ -47,6 +47,10 @@ namespace GitHubRepositoryAnalyzerApp
 
             // Define a fonte e tamanho do texto
             XFont font = new XFont("Arial", 12, XFontStyle.Regular);
+
+            // Desenha o cabeçalho
+            gfx.DrawRectangle(XBrushes.LimeGreen, 0, 0, page.Width, 100);
+            gfx.DrawString("Relatório de Utilização de Inteligência Artificial", new XFont("Arial", 20, XFontStyle.Bold), XBrushes.White, new XRect(0, 30, page.Width, 50), XStringFormats.Center);
 
             // Deserialize o JSON da resposta
             using (JsonDocument doc = JsonDocument.Parse(responseBody))
@@ -69,16 +73,48 @@ namespace GitHubRepositoryAnalyzerApp
                 double copilotPercentage = totalCommits > 0 ? (double)copilotCommits / totalCommits * 100 : 0;
 
                 // Escreve os dados no documento PDF
-                gfx.DrawString($"Total de commits: {totalCommits}", font, XBrushes.Black, new XRect(30, 30, page.Width.Point, page.Height.Point), XStringFormats.TopLeft);
-                gfx.DrawString($"Commits com 'IA-(Projeto-X)': {copilotCommits}", font, XBrushes.Black, new XRect(30, 50, page.Width.Point, page.Height.Point), XStringFormats.TopLeft);
-                gfx.DrawString($"Porcentagem de uso de IA: {copilotPercentage}%", font, XBrushes.Black, new XRect(30, 70, page.Width.Point, page.Height.Point), XStringFormats.TopLeft);
+                gfx.DrawString($"Total de commits: {totalCommits}", font, XBrushes.Black, new XRect(30, 130, page.Width.Point, page.Height.Point), XStringFormats.TopLeft);
+                gfx.DrawString($"Commits com 'IA-(Projeto-X)': {copilotCommits}", font, XBrushes.Black, new XRect(30, 150, page.Width.Point, page.Height.Point), XStringFormats.TopLeft);
+                gfx.DrawString($"Porcentagem de uso de IA: {copilotPercentage}%", font, XBrushes.Black, new XRect(30, 170, page.Width.Point, page.Height.Point), XStringFormats.TopLeft);
+
+                // Cria o gráfico de pizza
+                double[] data = { copilotPercentage, 100 - copilotPercentage };
+                string[] labels = { "IA-(Projeto-X)", "Outros" };
+                DrawPieChart(gfx, data, labels, 200, 400, 100);
             }
 
             // Salva o documento PDF
-            string pdfPath = @"C:\PDF-Git\Arquivo.pdf";
+            string pdfPath = @"C:\PDF-Git\Arquivo1.pdf";
             document.Save(pdfPath);
 
             Console.WriteLine($"PDF criado com sucesso em: {pdfPath}");
         }
+        
+
+        static void DrawPieChart(XGraphics gfx, double[] data, string[] labels, double centerX, double centerY, double radius)
+        {
+            double total = data.Sum();
+            double startAngle = 0;
+
+            // Cores para as fatias do gráfico
+            XColor[] sliceColors = { XColors.Red, XColors.Green, XColors.Blue, XColors.Yellow, XColors.Orange, XColors.Purple };
+
+            for (int i = 0; i < data.Length; i++)
+            {
+                double sweepAngle = 360 * (data[i] / total);
+
+                // Seleciona uma cor para a fatia
+                XBrush brush = new XSolidBrush(sliceColors[i % sliceColors.Length]);
+
+                gfx.DrawPie(brush, (float)(centerX - radius), (float)(centerY - radius), (float)(2 * radius), (float)(2 * radius), (float)startAngle, (float)sweepAngle);
+
+                double labelX = centerX + (radius / 2) * Math.Cos(Math.PI * (startAngle + sweepAngle / 2) / 180);
+                double labelY = centerY + (radius / 2) * Math.Sin(Math.PI * (startAngle + sweepAngle / 2) / 180);
+                gfx.DrawString($"{labels[i]} ({data[i]:F2}%)", new XFont("Arial", 10), XBrushes.Black, (float)labelX, (float)labelY, XStringFormats.Center);
+
+                startAngle += sweepAngle;
+            }
+        }
+
     }
 }
