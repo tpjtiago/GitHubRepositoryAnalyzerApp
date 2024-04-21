@@ -66,15 +66,25 @@ namespace GitHubRepositoryAnalyzerApp
 
                 int totalCommits = 0;
                 int copilotCommits = 0;
-
+                Dictionary<string, int> authorCommitCounts = new Dictionary<string, int>();
                 foreach (var commit in commits)
                 {
                     totalCommits++;
                     string commitMessage = commit.GetProperty("commit").GetProperty("message").GetString();
+                    string authorName = commit.GetProperty("author").GetProperty("login").GetString();
+                    if (!authorCommitCounts.ContainsKey(authorName))
+                    {
+                        authorCommitCounts[authorName] = 0;
+                    }
+
+                    authorCommitCounts[authorName]++;
+
                     if (commitMessage.Contains("IA-(Projeto-X)", StringComparison.OrdinalIgnoreCase))
                     {
                         copilotCommits++;
                     }
+                    //gfx.DrawString($"Mensagem: {commitMessage}", font, XBrushes.Black, new XRect(30, 190 + (totalCommits * 20), page.Width.Point, page.Height.Point), XStringFormats.TopLeft);
+
                 }
 
                 double copilotPercentage = totalCommits > 0 ? (double)copilotCommits / totalCommits * 100 : 0;
@@ -83,7 +93,6 @@ namespace GitHubRepositoryAnalyzerApp
                 gfx.DrawString($"Total de commits: {totalCommits}", font, XBrushes.Black, new XRect(30, 130, page.Width.Point, page.Height.Point), XStringFormats.TopLeft);
                 gfx.DrawString($"Commits com 'IA-(Projeto-X)': {copilotCommits}", font, XBrushes.Black, new XRect(30, 150, page.Width.Point, page.Height.Point), XStringFormats.TopLeft);
                 gfx.DrawString($"Porcentagem de uso de IA: {copilotPercentage.ToString("F2")}%", font, XBrushes.Black, new XRect(30, 170, page.Width.Point, page.Height.Point), XStringFormats.TopLeft);
-
                 double chartX = page.Width - 150;
                 double chartY = textY + 120;
 
@@ -91,6 +100,14 @@ namespace GitHubRepositoryAnalyzerApp
                 double[] data = { copilotPercentage, 100 - copilotPercentage };
                 string[] labels = { "IA-(Projeto-X)", "Tradicional" };
                 DrawPieChart(gfx, data, labels, chartX, chartY, 100);
+
+                // Desenha o gráfico de barras horizontais
+                double barChartStartX = 30;
+                double barChartStartY = 300;
+                double barWidth = 200;
+                double barHeight = 20;
+
+                DrawBarChart(gfx, authorCommitCounts, barChartStartX, barChartStartY, barWidth, barHeight, copilotCommits);
             }
 
             // Salva o documento PDF
@@ -125,6 +142,33 @@ namespace GitHubRepositoryAnalyzerApp
                 gfx.DrawString($"{labels[i]} ({data[i]:F2}%)", new XFont("Arial", 10), XBrushes.Black, (float)labelX, (float)labelY, XStringFormats.Center);
 
                 startAngle += sweepAngle;
+            }
+        }
+        static void DrawBarChart(XGraphics gfx, Dictionary<string, int> commitCounts, double startX, double startY, double barWidth, double barHeight, int copilotCommits)
+        {
+            int maxCount = commitCounts.Values.Max();
+            double scaleFactor = barWidth / maxCount;
+
+            int i = 0;
+            foreach (var pair in commitCounts)
+            {
+                double barLength = pair.Value * scaleFactor;
+                double barX = startX;
+                double barY = startY + i * (barHeight + 10);
+
+                // Desenha a barra
+                gfx.DrawRectangle(XBrushes.LightBlue, barX, barY, barLength, barHeight);
+
+                // Adiciona o texto do autor e contagem de commits acima da barra
+                gfx.DrawString($"I.A", new XFont("Arial", 10), XBrushes.Black, barX + barLength + 10, barY, XStringFormats.TopLeft);
+
+                // Calcula a posição do texto no meio da barra
+                double textX = barX + (barLength / 2);
+                double textY = barY + (barHeight / 2);
+
+                // Adiciona o texto no meio da barra
+                gfx.DrawString($"{pair.Key}: {copilotCommits} ", new XFont("Arial", 10), XBrushes.Black, textX, textY, XStringFormats.Center);
+                i++;
             }
         }
 
