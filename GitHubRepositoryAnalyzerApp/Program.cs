@@ -49,8 +49,15 @@ namespace GitHubRepositoryAnalyzerApp
             XFont font = new XFont("Arial", 12, XFontStyle.Regular);
 
             // Desenha o cabeçalho
-            gfx.DrawRectangle(XBrushes.LimeGreen, 0, 0, page.Width, 100);
+            gfx.DrawRectangle(XBrushes.LightBlue, 0, 0, page.Width, 100);
             gfx.DrawString("Relatório de Utilização de Inteligência Artificial", new XFont("Arial", 20, XFontStyle.Bold), XBrushes.White, new XRect(0, 30, page.Width, 50), XStringFormats.Center);
+
+            string dataInicial = "01/04/2024";
+            string dataFinal = "20/04/2024";
+            XSize size = gfx.MeasureString($"Período: {dataInicial} a {dataFinal}", font);
+            double centerX = page.Width / 2;
+            double textY = 100 + (size.Height / 2); // Posiciona o texto no centro abaixo do cabeçalho
+            gfx.DrawString($"Período: {dataInicial} a {dataFinal}", font, XBrushes.Black, new XRect(0, textY, page.Width, size.Height), XStringFormats.Center);
 
             // Deserialize o JSON da resposta
             using (JsonDocument doc = JsonDocument.Parse(responseBody))
@@ -77,10 +84,13 @@ namespace GitHubRepositoryAnalyzerApp
                 gfx.DrawString($"Commits com 'IA-(Projeto-X)': {copilotCommits}", font, XBrushes.Black, new XRect(30, 150, page.Width.Point, page.Height.Point), XStringFormats.TopLeft);
                 gfx.DrawString($"Porcentagem de uso de IA: {copilotPercentage}%", font, XBrushes.Black, new XRect(30, 170, page.Width.Point, page.Height.Point), XStringFormats.TopLeft);
 
+                double chartX = page.Width - 150;
+                double chartY = textY + 120;
+
                 // Cria o gráfico de pizza
                 double[] data = { copilotPercentage, 100 - copilotPercentage };
                 string[] labels = { "IA-(Projeto-X)", "Outros" };
-                DrawPieChart(gfx, data, labels, 200, 400, 100);
+                DrawPieChart(gfx, data, labels, chartX, chartY, 100);
             }
 
             // Salva o documento PDF
@@ -89,7 +99,9 @@ namespace GitHubRepositoryAnalyzerApp
 
             Console.WriteLine($"PDF criado com sucesso em: {pdfPath}");
         }
-        
+
+
+
 
         static void DrawPieChart(XGraphics gfx, double[] data, string[] labels, double centerX, double centerY, double radius)
         {
@@ -97,7 +109,7 @@ namespace GitHubRepositoryAnalyzerApp
             double startAngle = 0;
 
             // Cores para as fatias do gráfico
-            XColor[] sliceColors = { XColors.Red, XColors.Green, XColors.Blue, XColors.Yellow, XColors.Orange, XColors.Purple };
+            XColor[] sliceColors = { XColors.BlueViolet, XColors.MediumSeaGreen, XColors.Blue, XColors.Yellow, XColors.Orange, XColors.Purple };
 
             for (int i = 0; i < data.Length; i++)
             {
