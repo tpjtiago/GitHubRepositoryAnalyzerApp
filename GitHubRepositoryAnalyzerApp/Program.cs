@@ -82,14 +82,14 @@ namespace GitHubRepositoryAnalyzerApp
                 // Escreve os dados no documento PDF
                 gfx.DrawString($"Total de commits: {totalCommits}", font, XBrushes.Black, new XRect(30, 130, page.Width.Point, page.Height.Point), XStringFormats.TopLeft);
                 gfx.DrawString($"Commits com 'IA-(Projeto-X)': {copilotCommits}", font, XBrushes.Black, new XRect(30, 150, page.Width.Point, page.Height.Point), XStringFormats.TopLeft);
-                gfx.DrawString($"Porcentagem de uso de IA: {copilotPercentage}%", font, XBrushes.Black, new XRect(30, 170, page.Width.Point, page.Height.Point), XStringFormats.TopLeft);
+                gfx.DrawString($"Porcentagem de uso de IA: {copilotPercentage.ToString("F2")}%", font, XBrushes.Black, new XRect(30, 170, page.Width.Point, page.Height.Point), XStringFormats.TopLeft);
 
                 double chartX = page.Width - 150;
                 double chartY = textY + 120;
 
                 // Cria o gráfico de pizza
                 double[] data = { copilotPercentage, 100 - copilotPercentage };
-                string[] labels = { "IA-(Projeto-X)", "Outros" };
+                string[] labels = { "IA-(Projeto-X)", "Tradicional" };
                 DrawPieChart(gfx, data, labels, chartX, chartY, 100);
             }
 
