@@ -1,11 +1,7 @@
 ﻿using PdfSharpCore.Drawing;
 using PdfSharpCore.Pdf;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace GitHubRepositoryAnalyzerApp
 {
@@ -107,7 +103,7 @@ namespace GitHubRepositoryAnalyzerApp
                         copilotCommits++;
                     }
 
-                    string[] tags = { "feat", "fix", "docs", "style", "refactor", "test", "chore", "IA-(Projeto-X)" };
+                    string[] tags = { "feat", "fix", "docs", "style", "refactor", "test", "chore", "IA-(Projeto-X)", "ai" };
                     foreach (var tag in tags)
                     {
                         if (commitMessage.Contains(tag, StringComparison.OrdinalIgnoreCase))
