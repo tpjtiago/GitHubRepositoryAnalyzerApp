@@ -63,7 +63,7 @@ namespace GitHubRepositoryAnalyzerApp
             // Draw title and subtitle
             gfx.DrawString("Relatório de Utilização de Inteligência Artificial",
                 titleFont, titleBrush,
-                new XRect(0, 10, page.Width, headerHeight - 20),
+                new XRect(0, 0, page.Width, headerHeight - 20),
                 XStringFormats.Center);
 
             gfx.DrawString("Análise detalhada dos dados e insights",
