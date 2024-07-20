@@ -74,7 +74,7 @@ namespace GitHubRepositoryAnalyzerApp
             string dataInicial = "01/04/2024";
             string dataFinal = "20/04/2024";
             XSize size = gfx.MeasureString($"Período: {dataInicial} a {dataFinal}", font);
-            gfx.DrawString($"Período: {dataInicial} a {dataFinal}", font, XBrushes.LightSteelBlue, new XRect(0, headerHeight - 40, page.Width, size.Height), XStringFormats.Center);
+            gfx.DrawString($"Período: {dataInicial} a {dataFinal}", font, XBrushes.LightSteelBlue, new XRect(0, headerHeight - 70, page.Width, size.Height), XStringFormats.Center);
 
             // Deserialize JSON response
             using (JsonDocument doc = JsonDocument.Parse(responseBody))
