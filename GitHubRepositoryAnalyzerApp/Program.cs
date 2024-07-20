@@ -146,7 +146,7 @@ namespace GitHubRepositoryAnalyzerApp
                 DrawBarChart(gfx, tagCommitCounts.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value), authorBarChartX, tagBarChartY, authorBarChartWidth, barHeight, false);
             }
 
-            // Save the PDF
+            // Save the PDFF
             string pdfPath = @"C:\PDF-Git\Arquivo1.pdf";
             document.Save(pdfPath);
 
