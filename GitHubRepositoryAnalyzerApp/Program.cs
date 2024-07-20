@@ -128,7 +128,7 @@ namespace GitHubRepositoryAnalyzerApp
                 double pieChartX = page.Width - chartWidth - margin;
                 double pieChartY = headerHeight + 80;
                 double[] pieChartData = { copilotPercentage, 100 - copilotPercentage };
-                string[] pieChartLabels = { "IA-GiftCard", "Tradicional" };
+                string[] pieChartLabels = { "IA", "Tradicional" };
                 DrawPieChart(gfx, pieChartData, pieChartLabels, pieChartX + chartWidth / 2, pieChartY + chartHeight / 2, chartWidth / 2);
 
                 // Draw Author Bar Chart
