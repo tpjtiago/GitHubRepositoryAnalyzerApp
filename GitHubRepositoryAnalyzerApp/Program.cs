@@ -103,7 +103,7 @@ namespace GitHubRepositoryAnalyzerApp
                         copilotCommits++;
                     }
 
-                    string[] tags = { "feat", "fix", "docs", "style", "refactor", "test", "chore", "IA-(Projeto-X)", "ai" };
+                    string[] tags = { "feat", "fix", "docs", "style", "refactor", "test", "chore", "ai" };
                     foreach (var tag in tags)
                     {
                         if (commitMessage.Contains(tag, StringComparison.OrdinalIgnoreCase))
