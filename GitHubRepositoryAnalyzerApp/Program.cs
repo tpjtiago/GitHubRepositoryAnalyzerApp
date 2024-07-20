@@ -58,23 +58,23 @@ namespace GitHubRepositoryAnalyzerApp
 
             // Draw header background
             gfx.DrawRectangle(XBrushes.DarkSlateBlue, 0, 0, page.Width, headerHeight);
-            gfx.DrawLine(new XPen(XColors.WhiteSmoke, 2), 0, headerHeight, page.Width, headerHeight);
+            gfx.DrawLine(new XPen(XColors.WhiteSmoke, 2), 20, headerHeight, page.Width, headerHeight);
 
             // Draw title and subtitle
             gfx.DrawString("Relatório de Utilização de Inteligência Artificial",
                 titleFont, titleBrush,
-                new XRect(0, 0, page.Width, headerHeight - 20),
+                new XRect(0, 0, page.Width, headerHeight - 40),
                 XStringFormats.Center);
 
             gfx.DrawString("Análise detalhada dos dados e insights",
                 subtitleFont, XBrushes.White,
-                new XRect(0, 40, page.Width, headerHeight - 20),
+                new XRect(0, 40, page.Width, headerHeight - 60),
                 XStringFormats.Center);
 
             string dataInicial = "01/04/2024";
             string dataFinal = "20/04/2024";
             XSize size = gfx.MeasureString($"Período: {dataInicial} a {dataFinal}", font);
-            gfx.DrawString($"Período: {dataInicial} a {dataFinal}", font, XBrushes.LightSteelBlue, new XRect(0, headerHeight - 70, page.Width, size.Height), XStringFormats.Center);
+            gfx.DrawString($"Período: {dataInicial} a {dataFinal}", font, XBrushes.LightSteelBlue, new XRect(0, headerHeight - 25, page.Width, size.Height), XStringFormats.Center);
 
             // Deserialize JSON response
             using (JsonDocument doc = JsonDocument.Parse(responseBody))
@@ -143,7 +143,7 @@ namespace GitHubRepositoryAnalyzerApp
                 double tagBarChartY = authorBarChartY + authorCommitCounts.Count * (barHeight + 10) + 30;
 
                 gfx.DrawString("Commits por Tag", sectionTitleFont, XBrushes.Black, new XRect(authorBarChartX, tagBarChartY - 30, authorBarChartWidth, barHeight), XStringFormats.TopLeft);
-                DrawBarChart(gfx, tagCommitCounts, authorBarChartX, tagBarChartY, authorBarChartWidth, barHeight, false);
+                DrawBarChart(gfx, tagCommitCounts.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value), authorBarChartX, tagBarChartY, authorBarChartWidth, barHeight, false);
             }
 
             // Save the PDF
