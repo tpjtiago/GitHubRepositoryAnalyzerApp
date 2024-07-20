@@ -9,6 +9,8 @@ namespace GitHubRepositoryAnalyzerApp
     {
         static async Task Main(string[] args)
         {
+            //TagsGitConfiguration.ConfigureGitHooks();
+
             string repositoryOwner = "tpjtiago";
             string repositoryName = "GitHubRepositoryAnalyzerApp";
             string accessToken = "";
@@ -47,17 +49,44 @@ namespace GitHubRepositoryAnalyzerApp
 
             // Define a fonte e tamanho do texto
             XFont font = new XFont("Arial", 12, XFontStyle.Regular);
+            // Define a altura do cabeçalho
+            double headerHeight = 100;
 
-            // Desenha o cabeçalho
-            gfx.DrawRectangle(XBrushes.LightBlue, 0, 0, page.Width, 100);
-            gfx.DrawString("Relatório de Utilização de Inteligência Artificial", new XFont("Arial", 20, XFontStyle.Bold), XBrushes.White, new XRect(0, 30, page.Width, 50), XStringFormats.Center);
+            // Define as margens do texto
+            double titleMarginTop = -40;
+            double subtitleMarginTop = 60;
+
+            // Desenha o cabeçalho com nova cor de fundo
+            gfx.DrawRectangle(XBrushes.DarkSlateBlue, 0, 0, page.Width, headerHeight);
+
+            // Adiciona uma linha abaixo do cabeçalho com uma cor que contrasta
+            gfx.DrawLine(new XPen(XColors.WhiteSmoke, 2), 0, headerHeight, page.Width, headerHeight);
+
+            // Adiciona o título com uma nova cor
+            var titleFont = new XFont("Arial", 24, XFontStyle.Bold);
+            var subtitleFont = new XFont("Arial", 14, XFontStyle.Italic);
+            var titleBrush = XBrushes.LightCyan;
+            var subtitleBrush = XBrushes.LightSteelBlue;
+
+            // Desenha o título
+            gfx.DrawString("Relatório de Utilização de Inteligência Artificial",
+                titleFont, titleBrush,
+                new XRect(0, titleMarginTop, page.Width, headerHeight - titleMarginTop),
+                XStringFormats.Center);
+
+            // Desenha um subtítulo opcional
+            gfx.DrawString("Análise detalhada dos dados e insights",
+                subtitleFont, XBrushes.White,
+                new XRect(0, 30, page.Width, 50),
+                XStringFormats.Center);
 
             string dataInicial = "01/04/2024";
             string dataFinal = "20/04/2024";
             XSize size = gfx.MeasureString($"Período: {dataInicial} a {dataFinal}", font);
             double centerX = page.Width / 2;
             double textY = 100 + (size.Height / 2); // Posiciona o texto no centro abaixo do cabeçalho
-            gfx.DrawString($"Período: {dataInicial} a {dataFinal}", font, XBrushes.Black, new XRect(0, textY, page.Width, size.Height), XStringFormats.Center);
+
+            gfx.DrawString($"Período: {dataInicial} a {dataFinal}", font, XBrushes.LightSteelBlue, new XRect(0, 75, page.Width, size.Height), XStringFormats.Center);
 
             // Deserialize o JSON da resposta
             using (JsonDocument doc = JsonDocument.Parse(responseBody))
@@ -91,14 +120,14 @@ namespace GitHubRepositoryAnalyzerApp
 
                 // Escreve os dados no documento PDF
                 gfx.DrawString($"Total de commits: {totalCommits}", font, XBrushes.Black, new XRect(30, 130, page.Width.Point, page.Height.Point), XStringFormats.TopLeft);
-                gfx.DrawString($"Commits com 'IA-(Projeto-X)': {copilotCommits}", font, XBrushes.Black, new XRect(30, 150, page.Width.Point, page.Height.Point), XStringFormats.TopLeft);
+                gfx.DrawString($"Commits com Tag 'IA': {copilotCommits}", font, XBrushes.Black, new XRect(30, 150, page.Width.Point, page.Height.Point), XStringFormats.TopLeft);
                 gfx.DrawString($"Porcentagem de uso de IA: {copilotPercentage.ToString("F2")}%", font, XBrushes.Black, new XRect(30, 170, page.Width.Point, page.Height.Point), XStringFormats.TopLeft);
                 double chartX = page.Width - 150;
                 double chartY = textY + 120;
 
                 // Cria o gráfico de pizza
                 double[] data = { copilotPercentage, 100 - copilotPercentage };
-                string[] labels = { "IA-(Projeto-X)", "Tradicional" };
+                string[] labels = { "IA-GiftCard", "Tradicional" };
                 DrawPieChart(gfx, data, labels, chartX, chartY, 100);
 
                 // Desenha o gráfico de barras horizontais
@@ -122,11 +151,16 @@ namespace GitHubRepositoryAnalyzerApp
 
         static void DrawPieChart(XGraphics gfx, double[] data, string[] labels, double centerX, double centerY, double radius)
         {
+            if (gfx == null || data == null || labels == null || data.Length != labels.Length || data.Length == 0)
+            {
+                throw new ArgumentException("Argumentos inválidos ou nulos fornecidos.");
+            }
+
             double total = data.Sum();
             double startAngle = 0;
 
             // Cores para as fatias do gráfico
-            XColor[] sliceColors = { XColors.BlueViolet, XColors.MediumSeaGreen, XColors.Blue, XColors.Yellow, XColors.Orange, XColors.Purple };
+            XColor[] sliceColors = { XColors.CornflowerBlue, XColors.LightGreen, XColors.SkyBlue, XColors.Gold, XColors.OrangeRed, XColors.MediumPurple };
 
             for (int i = 0; i < data.Length; i++)
             {
@@ -135,15 +169,29 @@ namespace GitHubRepositoryAnalyzerApp
                 // Seleciona uma cor para a fatia
                 XBrush brush = new XSolidBrush(sliceColors[i % sliceColors.Length]);
 
+                // Desenha a fatia do gráfico
                 gfx.DrawPie(brush, (float)(centerX - radius), (float)(centerY - radius), (float)(2 * radius), (float)(2 * radius), (float)startAngle, (float)sweepAngle);
 
-                double labelX = centerX + (radius / 2) * Math.Cos(Math.PI * (startAngle + sweepAngle / 2) / 180);
-                double labelY = centerY + (radius / 2) * Math.Sin(Math.PI * (startAngle + sweepAngle / 2) / 180);
-                gfx.DrawString($"{labels[i]} ({data[i]:F2}%)", new XFont("Arial", 10), XBrushes.Black, (float)labelX, (float)labelY, XStringFormats.Center);
+                // Calcula a posição do rótulo
+                double labelX = centerX + (radius * 0.5) * Math.Cos(Math.PI * (startAngle + sweepAngle / 2) / 180);
+                double labelY = centerY + (radius * 0.5) * Math.Sin(Math.PI * (startAngle + sweepAngle / 2) / 180);
+
+                // Adiciona um rótulo com uma cor de texto legível e uma sombra para melhor visibilidade
+                XFont font = new XFont("Arial", 10, XFontStyle.Bold);
+                XBrush textBrush = XBrushes.Black;
+                XBrush shadowBrush = new XSolidBrush(XColors.LightGray);
+
+                // Adiciona a sombra
+                gfx.DrawString($"{labels[i]} ({data[i]:F2}%)", font, shadowBrush, new XPoint(labelX + 1, labelY + 1), XStringFormats.Center);
+
+                // Adiciona o rótulo
+                gfx.DrawString($"{labels[i]} ({data[i]:F2}%)", font, textBrush, new XPoint(labelX, labelY), XStringFormats.Center);
 
                 startAngle += sweepAngle;
             }
         }
+
+
         static void DrawBarChart(XGraphics gfx, Dictionary<string, int> commitCounts, double startX, double startY, double barWidth, double barHeight, int copilotCommits)
         {
             int maxCount = commitCounts.Values.Max();
