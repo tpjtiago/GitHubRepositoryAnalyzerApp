@@ -47,6 +47,8 @@ namespace GitHubRepositoryAnalyzerApp
             XFont barFont = new XFont("Arial", 10, XFontStyle.Bold);
             XBrush titleBrush = XBrushes.LightCyan;
             XBrush subtitleBrush = XBrushes.LightSteelBlue;
+            XFont tagFont = new XFont("Arial", 10, XFontStyle.Bold);
+            XFont tagDescriptionFont = new XFont("Arial", 10, XFontStyle.Regular);
 
             double headerHeight = 100;
             double chartWidth = 200;
@@ -98,7 +100,7 @@ namespace GitHubRepositoryAnalyzerApp
                     }
                     authorCommitCounts[authorName]++;
 
-                    if (commitMessage.Contains("IA-(Projeto-X)", StringComparison.OrdinalIgnoreCase))
+                    if (commitMessage.Contains("ai", StringComparison.OrdinalIgnoreCase))
                     {
                         copilotCommits++;
                     }
@@ -144,6 +146,34 @@ namespace GitHubRepositoryAnalyzerApp
 
                 gfx.DrawString("Commits por Tag", sectionTitleFont, XBrushes.Black, new XRect(authorBarChartX, tagBarChartY - 30, authorBarChartWidth, barHeight), XStringFormats.TopLeft);
                 DrawBarChart(gfx, tagCommitCounts.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value), authorBarChartX, tagBarChartY, authorBarChartWidth, barHeight, false);
+
+                // Draw Tag References
+                double referenceY = tagBarChartY + tagCommitCounts.Count * (barHeight + 10) + 50;
+                gfx.DrawString("Referências de Tags:", sectionTitleFont, XBrushes.Black, new XRect(authorBarChartX, referenceY, authorBarChartWidth, barHeight), XStringFormats.TopLeft);
+
+                double referenceStartY = referenceY + 20;
+                double referenceSpacing = 20;
+
+                var tagReferences = new Dictionary<string, string>
+                {
+                    { "ai", "Para commits que utilizam IA" },
+                    { "feat", "Novos recursos" },
+                    { "fix", "Correções de bugs" },
+                    { "docs", "Documentação" },
+                    { "style", "Formatação, estilos" },
+                    { "refactor", "Refatoração de código" },
+                    { "perf", "Melhorias de performance" },
+                    { "test", "Testes" },
+                    { "chore", "Tarefas de manutenção" },
+                    { "ci", "Integração contínua" }
+                };
+
+                foreach (var tag in tagReferences)
+                {
+                    gfx.DrawString($"{tag.Key}", tagFont, XBrushes.Black, new XRect(authorBarChartX, referenceStartY, authorBarChartWidth, barHeight), XStringFormats.TopLeft);
+                    gfx.DrawString($" - {tag.Value}", tagDescriptionFont, XBrushes.Gray, new XRect(authorBarChartX + 40, referenceStartY, authorBarChartWidth, barHeight), XStringFormats.TopLeft);
+                    referenceStartY += referenceSpacing;
+                }
             }
 
             // Save the PDFF
